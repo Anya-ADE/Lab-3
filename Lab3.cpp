@@ -35,3 +35,13 @@ int main() {
     return 0;
 
 }    
+
+void displayMenu() {
+    cout << "=====================================" << endl;
+    cout << "    Graph Representation Program" << endl;
+    cout << "=====================================" << endl;
+    cout << "1. Create Adjacency Matrix" << endl;
+    cout << "2. Create Adjacency List" << endl;
+    cout << "3. Exit" << endl;
+    cout << "=====================================" << endl;
+}
