@@ -173,3 +173,155 @@ void createAdjacencyMatrix() {
     }
 }
 
+void createAdjacencyList() {
+    int v, e;
+    char graphType;
+    bool isDirected;
+   
+    cout << "\n=== Adjacency List Creation ===" << endl;
+    cout << "Enter number of vertices: ";
+    cin >> v;
+    cout << "Enter number of edges: ";
+    cin >> e;
+    cout << "Is the graph directed? (y/n): ";
+    cin >> graphType;
+   
+    isDirected = (graphType == 'y' || graphType == 'Y');
+   
+    if (isDirected) {
+        cout << "Creating a DIRECTED graph..." << endl;
+    } else {
+        cout << "Creating an UNDIRECTED graph..." << endl;
+    }
+
+    // Node structure for adjacency list
+    struct Node {
+        int vertex;
+        int weight;
+        Node* next;
+       
+        // Constructor for easier node creation
+        Node(int v, int w) : vertex(v), weight(w), next(nullptr) {}
+    };
+
+
+    vector<Node*> adjList(v, nullptr);
+
+
+    // Variables to track statistics
+    int totalWeight = 0;
+    int minWeight = INT_MAX;
+    int maxWeight = INT_MIN;
+    int minU = -1, minV = -1;
+    int maxU = -1, maxV = -1;
+    int validEdges = 0;
+
+
+    cout << "\nEnter edges (u v weight) where u and v are vertex indices:" << endl;
+    if (isDirected) {
+        cout << "(Edge direction: u -> v)" << endl;
+    }
+    cout << "(Note: Self-loops are allowed, e.g., 2 2 5)" << endl;
+   
+    for (int i = 0; i < e; i++) {
+        int u, w, weight;
+        cout << "Edge " << i+1 << ": ";
+        cin >> u >> w >> weight;
+       
+        // Validate vertex indices
+        if (u < 0 || u >= v || w < 0 || w >= v) {
+            cout << "Invalid edge (" << u << " " << w << "). Vertices must be between 0 and " << v-1 << "." << endl;
+            i--;
+            continue;
+        }
+
+// Validate weight
+        if (weight <= 0) {
+            cout << "Invalid weight. Weight must be positive." << endl;
+            i--;
+            continue;
+        }
+       
+        validEdges++;
+       
+        // Update statistics
+        totalWeight += weight;
+        if (weight < minWeight) {
+            minWeight = weight;
+            minU = u;
+            minV = w;
+        }
+        if (weight > maxWeight) {
+            maxWeight = weight;
+            maxU = u;
+            maxV = w;
+        }
+       
+        // Handle self-loop
+        if (u == w) {
+            cout << "Self-loop detected at vertex " << u << " with weight " << weight << endl;
+            Node* newNode = new Node(u, weight);
+            newNode->next = adjList[u];
+            adjList[u] = newNode;
+        } else {
+            // Add edge u -> w
+            Node* newNode = new Node(w, weight);
+            newNode->next = adjList[u];
+            adjList[u] = newNode;
+
+
+            // If undirected, also add edge w -> u
+            if (!isDirected) {
+                newNode = new Node(u, weight);
+                newNode->next = adjList[w];
+adjList[w] = newNode;
+            }
+        }
+    }
+
+
+    cout << "\n=== Adjacency List ===" << endl;
+    for (int i = 0; i < v; i++) {
+        cout << "Vertex " << i << ": ";
+        Node* temp = adjList[i];
+        while (temp) {
+            cout << "-> (" << temp->vertex << ", w:" << temp->weight << ") ";
+            temp = temp->next;
+        }
+        cout << "-> nullptr" << endl;
+    }
+   
+    // Show interpretation
+    if (isDirected) {
+        cout << "\n(Vertex i's list shows all vertices reachable FROM vertex i)" << endl;
+    } else {
+        cout << "\n(Vertex i's list shows all adjacent vertices)" << endl;
+    }
+   
+    // Display statistics
+    cout << "\n=== Graph Statistics ===" << endl;
+    cout << "Total number of vertices: " << v << endl;
+    cout << "Total number of valid edges: " << validEdges << endl;
+   
+    if (validEdges > 0) {
+        cout << "Total weight of all edges: " << totalWeight << endl;
+        cout << "Average edge weight: " << (double)totalWeight / validEdges << endl;
+        cout << "Minimum weight edge: " << minWeight << " (from vertex " << minU << " to vertex " << minV << ")" << endl;
+        cout << "Maximum weight edge: " << maxWeight << " (from vertex " << maxU << " to vertex " << maxV << ")" << endl;
+    }
+   
+// Clean up dynamically allocated memory
+    cout << "\nCleaning up memory..." << endl;
+    int nodesDeleted = 0;
+    for (int i = 0; i < v; i++) {
+        Node* current = adjList[i];
+        while (current) {
+            Node* toDelete = current;
+            current = current->next;
+            delete toDelete;
+            nodesDeleted++;
+        }
+        adjList[i] = nullptr;
+    }
+    cout << "Memory cleaned up successfully. Deleted " << nodesDeleted << " nodes." << endl;
+}
